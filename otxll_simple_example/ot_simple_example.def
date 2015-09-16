@@ -1,0 +1,20 @@
+;***************************************************************************
+; File: ot_simple_example.def
+;
+; Purpose: Definition file for ot_simple_example.xll project
+;***************************************************************************
+
+LIBRARY ot_simple_example.xll
+
+EXPORTS
+    ; Standard XLL functions
+    xlAutoOpen
+    xlAutoRegister12
+    xlAutoClose
+    xlAutoAdd
+    xlAutoRemove
+    xlAddInManagerInfo12
+    xlAutoFree12
+
+    ; User defined functions
+    OT_NORMAL_PDF
