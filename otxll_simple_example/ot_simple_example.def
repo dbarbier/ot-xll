@@ -4,8 +4,6 @@
 ; Purpose: Definition file for ot_simple_example.xll project
 ;***************************************************************************
 
-LIBRARY ot_simple_example.xll
-
 EXPORTS
     ; Standard XLL functions
     xlAutoOpen
@@ -18,3 +16,7 @@ EXPORTS
 
     ; User defined functions
     OT_NORMAL_PDF
+    OT_NORMAL_PDF_ARRAY
+    OT_NORMAL_PDF_DRAW
+    OT_NORMAL_PDF_DRAW_CMD
+

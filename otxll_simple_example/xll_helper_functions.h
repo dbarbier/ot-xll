@@ -18,6 +18,8 @@ int xloper_to_int(LPXLOPER12 xl_poper, int* value);
 
 /* Get the number of rows of active selection */
 int getNumberOfRows();
+/* Get the number of columns of active selection */
+int getNumberOfColumns();
 
 /* Display an error message */
 LPXLOPER12 dialogError(const std::string & msg, int error_code);

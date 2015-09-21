@@ -16,6 +16,9 @@
  *  along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#ifndef WIN32_LEAN_AND_MEAN
+# define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
 #include <xlcall.h>
 #include <framewrk.h>
@@ -38,8 +41,8 @@
 **
 **      LPXLOPER12      xloper of xltypeMulti Type.
 *****************************************************************/
-int xloper_to_multi(LPXLOPER12 p_op,
-                    LPXLOPER12 ret_val)
+int
+xloper_to_multi(LPXLOPER12 p_op, LPXLOPER12 ret_val)
 {
     int error = -1;
     switch (p_op->xltype)
@@ -163,8 +166,8 @@ xloper_to_num(LPXLOPER12 xl_poper, double* value)
 **
 **      -1 if success, error else
 ******************************************************************/
-int xloper_to_int(LPXLOPER12 xl_poper,
-                  int* value)
+int
+xloper_to_int(LPXLOPER12 xl_poper, int* value)
 {
     XLOPER12 xl_oper;
     int error = -1;
@@ -215,7 +218,8 @@ int xloper_to_int(LPXLOPER12 xl_poper,
 **  Returns :
 **      the number of rows of current selection, or 0 if there is an error
 **********************************************************************/
-int getNumberOfRows()
+int
+getNumberOfRows()
 {
     XLOPER12 Caller;
     XLOPER12 ret_val;
@@ -235,6 +239,46 @@ int getNumberOfRows()
     }
 
     int result = ret_val.val.array.rows;
+
+    // Free the XLOPER12 returned by xlCoerce && xlfCaller
+    Excel12f(xlFree, 0, 1, &Caller);
+    Excel12f(xlFree, 0, 1, &ret_val);
+
+    return result;
+}
+
+
+/*********************************************************************
+**  getNumberOfColumns()
+**
+**  Purpose :
+**        returns the number of columns of selected cells.
+**
+**
+**  Returns :
+**      the number of columns of current selection, or 0 if there is an error
+**********************************************************************/
+int
+getNumberOfColumns()
+{
+    XLOPER12 Caller;
+    XLOPER12 ret_val;
+
+    if(xlretSuccess != Excel12f(xlfCaller, &Caller, 0))
+    {
+        return 0;
+    }
+
+    if(xlretSuccess != Excel12f( xlCoerce,
+            &ret_val,
+            2,
+            &Caller,
+            TempInt12(xltypeMulti)))
+    {
+        return 0;
+    }
+
+    int result = ret_val.val.array.columns;
 
     // Free the XLOPER12 returned by xlCoerce && xlfCaller
     Excel12f(xlFree, 0, 1, &Caller);

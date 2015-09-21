@@ -16,6 +16,9 @@
  *  along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#ifndef WIN32_LEAN_AND_MEAN
+# define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
 #include <xlcall.h>
 #include <framewrk.h>
@@ -30,7 +33,7 @@ void WINAPI xlAutoFree12(LPXLOPER12 p);
 LPXLOPER12 WINAPI xlAutoRegister12(LPXLOPER12 pxName);
 LPXLOPER12 WINAPI xlAddInManagerInfo12(LPXLOPER12 xAction);
 
-#define rgWorksheetFuncsRows 1
+#define rgWorksheetFuncsRows 4
 #define rgWorksheetFuncsCols 12
 
 // Used To register XLL functions
@@ -50,6 +53,44 @@ LPWSTR rgWorksheetFuncs[rgWorksheetFuncsRows][rgWorksheetFuncsCols] =
       L"Mean of the Gaussian distribution",               // Description of first argument
       L"Standard deviation of the Gaussian distribution", // Description of second argument
       L"Point where PDF is evaluated"                     // Description of third argument
+    },
+    { L"OT_NORMAL_PDF_ARRAY",
+      L"UUUU",
+      L"OT_NORMAL_PDF_ARRAY",
+      L"Mu, Sigma, Array",
+      L"1",
+      L"Openturns Add-In",
+      L"",
+      L"",
+      L"Compute the probability density function on a cell selection",
+      L"Mean of the Gaussian distribution",
+      L"Standard deviation of the Gaussian distribution",
+      L"Cells containing points where PDF is evaluated"
+    },
+    { L"OT_NORMAL_PDF_DRAW",
+      L"UUU#",
+      L"OT_NORMAL_PDF_DRAW",
+      L"Mu, Sigma",
+      L"1",
+      L"Openturns Add-In",
+      L"",
+      L"",
+      L"Compute the probability density function on a cell selection",
+      L"Mean of the Gaussian distribution",
+      L"Standard deviation of the Gaussian distribution"
+    },
+    { L"OT_NORMAL_PDF_DRAW_CMD",
+      L"UJUU",
+      L"OT_NORMAL_PDF_DRAW_CMD",
+      L"NrPoints, Mu, Sigma",
+      L"2",
+      L"Openturns Add-In",
+      L"",
+      L"",
+      L"Compute the probability density function",
+      L"Number of cells",
+      L"Mean of the Gaussian distribution",
+      L"Standard deviation of the Gaussian distribution"
     }
 };
 
