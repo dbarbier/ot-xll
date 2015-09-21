@@ -26,6 +26,9 @@
     <ClCompile Include="xll_functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="xll_helper_functions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\FRAMEWRK\FRAMEWRK.C">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -37,6 +40,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="xll_helper_functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\FRAMEWRK\FRAMEWRK.H">
       <Filter>Header Files</Filter>
     </ClInclude>

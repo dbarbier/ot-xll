@@ -152,11 +152,13 @@
     <ClCompile Include="..\FRAMEWRK\MemoryPool.cpp" />
     <ClCompile Include="ot_normal_pdf.cpp" />
     <ClCompile Include="xll_functions.cpp" />
+    <ClCompile Include="xll_helper_functions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\FRAMEWRK\FRAMEWRK.H" />
     <ClInclude Include="..\FRAMEWRK\MemoryManager.h" />
     <ClInclude Include="..\FRAMEWRK\MemoryPool.h" />
+    <ClInclude Include="xll_helper_functions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
