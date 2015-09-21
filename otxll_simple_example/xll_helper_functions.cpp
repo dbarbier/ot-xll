@@ -306,11 +306,7 @@ getNumberOfColumns()
 LPXLOPER12
 dialogError(const std::string & msg, int error_code)
 {
-    // Until we find a better way, print this message on console.
-    // Most of the time there is no console and message won't get
-    // displayed, but it looks like user defined functions cannot
-    // display dialog boxes
-    std::cout << msg << std::endl;
+    MessageBox(NULL, msg.c_str(), NULL, MB_ICONERROR);
 
     LPXLOPER12 xResult = new XLOPER12();
     xResult->xltype = xltypeErr | xlbitDLLFree;
