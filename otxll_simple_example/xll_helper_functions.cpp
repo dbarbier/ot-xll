@@ -306,11 +306,76 @@ getNumberOfColumns()
 LPXLOPER12
 dialogError(const std::string & msg, int error_code)
 {
-    MessageBox(NULL, msg.c_str(), NULL, MB_ICONERROR);
+    if (!isCalledByFuncWiz())
+        MessageBox(NULL, msg.c_str(), NULL, MB_ICONERROR);
 
     LPXLOPER12 xResult = new XLOPER12();
     xResult->xltype = xltypeErr | xlbitDLLFree;
     xResult->val.err = error_code;
     return xResult;
+}
+
+namespace {
+
+// Needed by isCalledByFuncWiz.
+typedef struct _EnumStruct {
+    bool bFuncWiz;
+} EnumStruct, FAR * LPEnumStruct;
+
+//! Needed by isCalledByFuncWiz.
+bool CALLBACK EnumProc(HWND hwnd, LPEnumStruct pEnum)
+{
+    const size_t CLASS_NAME_BUFFER = 256;
+
+    // first check the class of the window.  Will be szXLDialogClass
+    // if function wizard dialog is up in Excel
+    char rgsz[CLASS_NAME_BUFFER];
+        GetClassName(hwnd, (LPSTR)rgsz, CLASS_NAME_BUFFER);
+    if (2 == CompareString(MAKELCID(MAKELANGID(LANG_ENGLISH,
+            SUBLANG_ENGLISH_US),SORT_DEFAULT), NORM_IGNORECASE,
+            (LPSTR)rgsz,  (lstrlen((LPSTR)rgsz)>lstrlen("bosa_sdm_XL"))
+            ? lstrlen("bosa_sdm_XL"):-1, "bosa_sdm_XL", -1))
+    {
+        if(GetWindowText(hwnd, rgsz, CLASS_NAME_BUFFER))
+        {
+            // we know it is an excel window but we don't yet know if it is the 
+            // function wizard, we need to avoid find and replace and
+            // the paste and collect windows (we don't just look for Function so that
+            // international versions at least get the function wizard working
+            if (!strstr(rgsz, "Replace") && !strstr(rgsz, "Paste"))
+            {
+                pEnum->bFuncWiz = TRUE;
+                return false;
+            } else {
+                // might as well quit the search
+                return false;
+            }
+        }
+    }
+    // no luck - continue the enumeration
+    return true;
+}
+
+} // empty namespace
+
+/*********************************************************************
+**  isCalledByFuncWiz()
+**
+**  Copied from http://sourceforge.net/p/xlw/code/HEAD/tree/trunk/xlw/xlw/src/XlfExcel.cpp
+**
+**  Purpose :
+**      Tell whether this function is called from Function Wizard.
+**
+**  Returns :
+**      true if called from function Wizard, false otherwise.
+**********************************************************************/
+bool
+isCalledByFuncWiz()
+{
+    EnumStruct enm;
+
+    enm.bFuncWiz = false;
+    EnumThreadWindows(GetCurrentThreadId(), (WNDENUMPROC) EnumProc, (LPARAM) ((LPEnumStruct)  &enm));
+    return enm.bFuncWiz;
 }
 

@@ -24,5 +24,8 @@ int getNumberOfColumns();
 /* Display an error message */
 LPXLOPER12 dialogError(const std::string & msg, int error_code);
 
+/* Check whether function is called from Function Wizard */
+bool isCalledByFuncWiz();
+
 #endif // __XLL_HELPER_FUNCTIONS_H
 
