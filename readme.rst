@@ -176,8 +176,6 @@ For instance, this example project uses the following module-definition file:
   ; Purpose: Definition file for ot_simple_example.xll project
   ;***************************************************************************
   
-  LIBRARY ot_simple_example.xll
-  
   EXPORTS
       ; Standard XLL functions
       xlAutoOpen
@@ -251,23 +249,40 @@ functions:
 
 .. code-block:: C
 
-  #define rgFuncsRows 1
-  #define rgFuncsCols 12
-  LPWSTR rgWorksheetFuncs[rgFuncsRows][rgFuncsCols] =
+  #define rgWorksheetFuncsRows 4
+  #define rgWorksheetFuncsCols 13
+
+  LPWSTR rgWorksheetFuncs[rgWorksheetFuncsRows][rgWorksheetFuncsCols] =
   {
-      { L"OT_NORMAL_PDF",
+      { L"OT_NORMAL_PDF",      // Name of the function in DLL
+        L"UUUU",               // Data type of the return value and arguments
+          // Most common values are B (double, passed by value) and
+          // U (XLOPER12 values, arrays, and range references
+        L"OT_NORMAL_PDF",      // The function name as it will appear in the Function Wizard
+        L"Mu, Sigma, Point",   // Description of arguments
+        L"1",                  // Macro type, use "1" by default or "2" for hidden commands
+        L"Openturns Add-In",   // Category name
+        L"",                   // Shortcut for commands, do not use
+        L"",                   // Reference to the Help file
+        L"Compute the probability density function",        // Function help
+        L"Mean of the Gaussian distribution",               // Description of first argument
+        L"Standard deviation of the Gaussian distribution", // Description of second argument
+        L"Point where PDF is evaluated"                     // Description of third argument
+      },
+      { L"OT_NORMAL_PDF_ARRAY",
         L"UUUU",
-        L"OT_NORMAL_PDF",
-        L"Mu, Sigma, Point",
+        L"OT_NORMAL_PDF_ARRAY",
+        L"Mu, Sigma, Array",
         L"1",
         L"Openturns Add-In",
         L"",
         L"",
-        L"Compute the probability density function",
+        L"Compute the probability density function on a cell selection",
         L"Mean of the Gaussian distribution",
         L"Standard deviation of the Gaussian distribution",
-        L"Point where PDF is evaluated"
-      }
+        L"Cells containing points where PDF is evaluated"
+      },
+  [...two more function definitions stripped away...]
   };
 
 And here is how this array is used by ``xlAutoOpen``:
@@ -408,7 +423,6 @@ Let us now have a look at the full definition of ``OT_NORMAL_PDF``:
   LPXLOPER12 WINAPI
   OT_NORMAL_PDF(LPXLOPER12 xl_mu, LPXLOPER12 xl_sigma, LPXLOPER12 xl_point)
   {
-      LPXLOPER12 xResult = new XLOPER12();
       double mu, sigma, point;
       int error = -1;
   
@@ -416,50 +430,51 @@ Let us now have a look at the full definition of ``OT_NORMAL_PDF``:
       //======================
       if((error = xloper_to_num(xl_mu, &mu)) != -1)
       {
-          xResult->xltype = xltypeErr | xlbitDLLFree;
-          xResult->val.err = error;
-          return xResult;
+          return dialogError("(OT_NORMAL_PDF): Invalid conversion to xltypeNum for argument 'mu'", error);
       }
   
       // Coerce the standard deviation parameter
       //========================================
       if((error = xloper_to_num(xl_sigma, &sigma)) != -1)
       {
-          xResult->xltype = xltypeErr | xlbitDLLFree;
-          xResult->val.err = error;
-          return xResult;
+          return dialogError("(OT_NORMAL_PDF): Invalid conversion to xltypeNum for argument 'sigma'", error);
       }
   
       // Coerce the point parameter : to compute the PDF
       //================================================
       if((error = xloper_to_num(xl_point, &point)) != -1)
       {
-          xResult->xltype = xltypeErr | xlbitDLLFree;
-          xResult->val.err = error;
-          return xResult;
+          return dialogError("(OT_NORMAL_PDF): Invalid conversion to xltypeNum for argument 'point'", error);
       }
   
+      double value;
       //Compute the PDF on point
       //========================
       try
       {
           OT::Normal distribution(mu, sigma);
-          // xlbitDLLFree enables the DLL to release
-          // any dynamically allocated memory
-          // that was associated with the xloper
-          xResult->xltype = xltypeNum | xlbitDLLFree;
-          xResult->val.num = distribution.computePDF(point);
+          value = distribution.computePDF(point);
       }
       catch(OT::Exception & e)
       {
-          delete xResult;
-          return 0;
+          return dialogError(e.what(), xlerrValue);
       }
+      catch(std::exception & e)
+      {
+          return dialogError(e.what(), xlerrValue);
+      }
+  
+      // xlbitDLLFree enables the DLL to release
+      // any dynamically allocated memory
+      // that was associated with the xloper
+      LPXLOPER12 xResult = new XLOPER12();
+      xResult->xltype = xltypeNum | xlbitDLLFree;
+      xResult->val.num = value;
   
       return xResult;
   }
 
-Excel SDK provides helper functions to transform simple types (int, double, strings, ...) into ``LPXLOPER12`` data type which can be passed to Excel, but surprisingly there are no tools to perform the opposite conversion.  Thus we wrote an ``xloper_to_num`` function for that purpose.  If conversion fails, an ``LPXLOPER12`` with type ``xltypeErr`` is returned to tell Excel that something went wrong.
+Excel SDK provides helper functions to transform simple types (int, double, strings, ...) into ``LPXLOPER12`` data type which can be passed to Excel, but surprisingly there are no tools to perform the opposite conversion.  Thus we wrote an ``xloper_to_num`` function for that purpose.  If conversion fails, an ``LPXLOPER12`` with type ``xltypeErr`` is returned to tell Excel that something went wrong.  Likewise, the ``dialogError`` function has been written to help managing errors.
 
 All calls to OpenTURNS functions must be enclosed in a try-catch block.
 The first reason is that we do not want to crash Excel if there is a user error.  But there is also a more subtle reason: when user launches the Function Wizard to enter function arguments, Excel calls our function each time an argument has changed.  With the code written above, it would not matter much because arguments are checked, but if they are passed by value like this:
