@@ -492,15 +492,7 @@ Caveats
 
 - Documentation about writing XLL is scarce.
 
-- For security reasons, functions in XLL cannot modify anything in user's worksheet, thus it is not possible:
-
-  + to report useful error messages, in particular OpenTURNS exceptions cannot be displayed.
-  + to pass the number of cells to replace as an argument (to plot a graph, for instance).
-
-- According to Excel documentation, it seems possible to bypass some restrictions by giving more permissions to user-defined functions, but we did not succeed.
-
-- Note taken from `MSDN <https://msdn.microsoft.com/en-us/library/office/bb687858.aspx>`_:
-  *Excel also calls XLL function code from the Paste Function Wizard and Replace dialog boxes. You might need to restrict your code’s normal running in the case of the Paste Function Arguments dialog box, especially where your function can take a long time to execute. To detect if your function is being called from either of these dialog boxes, you must implement some code in your project that iterates through all the open windows to determine if the front window is one of these dialog boxes, and, if so, which one.*
+- For security reasons, functions in XLL cannot modify anything in user's worksheet, thus it is not possible to pass the number of cells to replace as an argument (to plot a graph, for instance).  There are few workarounds, but they have also their drawbacks.
 
 - We can only call OpenTURNS functions without side effects; it is likely that XLL should provide an object manager so that OpenTURNS can initialize some heavy objects in a function call, and use it in another function.
 
