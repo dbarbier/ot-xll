@@ -39,6 +39,9 @@ LPXLOPER12 WINAPI xlAddInManagerInfo12(LPXLOPER12 xAction);
 // Used To register XLL functions
 LPWSTR rgWorksheetFuncs[rgWorksheetFuncsRows][rgWorksheetFuncsCols] =
 {
+    // LPXLOPER12 OT_NORMAL_PDF(LPXLOPER12 mu, LPXLOPER12 sigma, LPXLOPER12 point)
+    // Arguments: mu, sigma and point are either numerical values or single cells
+    // Returns an xltypeNum cell containing value OT::Normal(mu, sigma).computePDF(point)
     { L"OT_NORMAL_PDF",      // Name of the function in DLL
       L"UUUU",               // Data type of the return value and arguments
         // Most common values are B (double, passed by value) and
@@ -54,6 +57,11 @@ LPWSTR rgWorksheetFuncs[rgWorksheetFuncsRows][rgWorksheetFuncsCols] =
       L"Standard deviation of the Gaussian distribution", // Description of second argument
       L"Point where PDF is evaluated"                     // Description of third argument
     },
+    // LPXLOPER12 OT_NORMAL_PDF_ARRAY(LPXLOPER12 mu, LPXLOPER12 sigma, LPXLOPER12 points)
+    // Arguments: mu and sigma are either numerical values or single cells
+    //            points is a range selection of one column
+    // Returns an xltypeMulti cell containing one column and the same number of rows as points
+    // Values are OT::Normal(mu, sigma).computePDF(p) for each p in points
     { L"OT_NORMAL_PDF_ARRAY",
       L"UUUU",
       L"OT_NORMAL_PDF_ARRAY",
@@ -67,6 +75,13 @@ LPWSTR rgWorksheetFuncs[rgWorksheetFuncsRows][rgWorksheetFuncsCols] =
       L"Standard deviation of the Gaussian distribution",
       L"Cells containing points where PDF is evaluated"
     },
+    // LPXLOPER12 OT_NORMAL_PDF_DRAW(LPXLOPER12 mu, LPXLOPER12 sigma)
+    // Arguments: mu and sigma are either numerical values or single cells
+    // Returns an xltypeMulti cell containing two columns.  The number of rows
+    //   is computed from active selection, this is why this function needs extra
+    //   permissions, which are expressed by the hash sign in its signature.
+    //   We ask OpenTURNS to return the given number of rows by
+    //     OT::Normal(mu, sigma).drawPDF(nrOfRows).getDrawable(0).getData()
     { L"OT_NORMAL_PDF_DRAW",
       L"UUU#",
       L"OT_NORMAL_PDF_DRAW",
@@ -75,10 +90,24 @@ LPWSTR rgWorksheetFuncs[rgWorksheetFuncsRows][rgWorksheetFuncsCols] =
       L"Openturns Add-In",
       L"",
       L"",
-      L"Compute the probability density function on a cell selection",
+      L"Fill-in current cell selection with the probability density function",
       L"Mean of the Gaussian distribution",
       L"Standard deviation of the Gaussian distribution"
     },
+    // LPXLOPER12 OT_NORMAL_PDF_DRAW_CMD(int nrOfRows, LPXLOPER12 mu, LPXLOPER12 sigma)
+    // Arguments: nrOfRows, mu and sigma are either numerical values or single cells
+    // Returns an xltypeMulti cell containing two columns and the given number of rows.
+    //   This time, no special permission is requested, but this does make sense only
+    //   if the current selection has nrOfRows rows.  This function is thus only meant
+    //   to be called from VB, this is why its macro type is set to "2", it is hidden
+    //   from Function Wizard.
+    //   We ask OpenTURNS to return the given number of rows by
+    //     OT::Normal(mu, sigma).drawPDF(nrOfRows).getDrawable(0).getData()
+    //   Example of VB macro:
+    //     Sub drawNormal()
+    //         Range("K100:L199").Select
+    //         Selection.FormulaArray = "=OT_NORMAL_PDF_DRAW_CMD(100,0,1)"
+    //     End Sub
     { L"OT_NORMAL_PDF_DRAW_CMD",
       L"UJUU",
       L"OT_NORMAL_PDF_DRAW_CMD",
